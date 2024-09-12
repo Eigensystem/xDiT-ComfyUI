@@ -53,7 +53,7 @@ def nullable_str(val: str):
 
 
 @dataclass
-class xFuserArgs:
+class xFuserEngineArgs:
     """Arguments for xFuser engine."""
 
     # Model arguments
@@ -81,18 +81,18 @@ class xFuserArgs:
     pipefusion_parallel_degree: int = 1
     num_pipeline_patch: Optional[int] = None
     attn_layer_num_for_pp: Optional[List[int]] = None
-    # Input arguments
-    height: int = 1024
-    width: int = 1024
-    num_frames: int = 49
-    num_inference_steps: int = 20
-    max_sequence_length: int = 256
-    prompt: Union[str, List[str]] = ""
-    negative_prompt: Union[str, List[str]] = ""
-    no_use_resolution_binning: bool = False
-    seed: int = 42
-    output_type: str = "pil"
-    enable_sequential_cpu_offload: bool = False
+    # # Input arguments
+    # height: int = 1024
+    # width: int = 1024
+    # num_frames: int = 49
+    # num_inference_steps: int = 20
+    # max_sequence_length: int = 256
+    # prompt: Union[str, List[str]] = ""
+    # negative_prompt: Union[str, List[str]] = ""
+    # no_use_resolution_binning: bool = False
+    # seed: int = 42
+    # output_type: str = "pil"
+    # enable_sequential_cpu_offload: bool = False
 
     @staticmethod
     def add_cli_args(parser: FlexibleArgumentParser):
@@ -294,18 +294,19 @@ class xFuserArgs:
             parallel_config=parallel_config,
         )
 
-        input_config = InputConfig(
-            height=self.height,
-            width=self.width,
-            num_frames=self.num_frames,
-            use_resolution_binning=not self.no_use_resolution_binning,
-            batch_size=len(self.prompt) if isinstance(self.prompt, list) else 1,
-            prompt=self.prompt,
-            negative_prompt=self.negative_prompt,
-            num_inference_steps=self.num_inference_steps,
-            max_sequence_length=self.max_sequence_length,
-            seed=self.seed,
-            output_type=self.output_type,
-        )
+        # input_config = InputConfig(
+        #     height=self.height,
+        #     width=self.width,
+        #     num_frames=self.num_frames,
+        #     use_resolution_binning=not self.no_use_resolution_binning,
+        #     batch_size=len(self.prompt) if isinstance(self.prompt, list) else 1,
+        #     prompt=self.prompt,
+        #     negative_prompt=self.negative_prompt,
+        #     num_inference_steps=self.num_inference_steps,
+        #     max_sequence_length=self.max_sequence_length,
+        #     seed=self.seed,
+        #     output_type=self.output_type,
+        # )
 
-        return engine_config, input_config
+        # return engine_config, input_config
+        return engine_config

@@ -1,14 +1,13 @@
 import os
 import torch
-import torch.distributed as dist
 from packaging import version
 from dataclasses import dataclass, fields
+from ray.util.placement_group import PlacementGroup
 
-from torch import distributed as dist
 
-from xfuser.logger import init_logger
-import xfuser.envs as envs
-from xfuser.envs import CUDA_VERSION, TORCH_VERSION, PACKAGES_CHECKER
+from xdit_comfyui.logger import init_logger
+import xdit_comfyui.envs as envs
+from xdit_comfyui.envs import CUDA_VERSION, TORCH_VERSION, PACKAGES_CHECKER
 
 logger = init_logger(__name__)
 
@@ -68,14 +67,6 @@ class DataParallelConfig:
             self.cfg_degree = 2
         else:
             self.cfg_degree = 1
-        assert self.dp_degree * self.cfg_degree <= dist.get_world_size(), (
-            "dp_degree * cfg_degree must be less than or equal to "
-            "world_size because of classifier free guidance"
-        )
-        assert (
-            dist.get_world_size() % (self.dp_degree * self.cfg_degree) == 0
-        ), "world_size must be divisible by dp_degree * cfg_degree"
-
 
 @dataclass
 class SequenceParallelConfig:
@@ -114,10 +105,6 @@ class TensorParallelConfig:
 
     def __post_init__(self):
         assert self.tp_degree >= 1, "tp_degree must greater than 1"
-        assert (
-            self.tp_degree <= dist.get_world_size()
-        ), "tp_degree must be less than or equal to world_size"
-
 
 @dataclass
 class PipeFusionParallelConfig:
@@ -129,9 +116,6 @@ class PipeFusionParallelConfig:
         assert (
             self.pp_degree is not None and self.pp_degree >= 1
         ), "pipefusion_degree must be set and greater than 1 to use pipefusion"
-        assert (
-            self.pp_degree <= dist.get_world_size()
-        ), "pipefusion_degree must be less than or equal to world_size"
         if self.num_pipeline_patch is None:
             self.num_pipeline_patch = self.pp_degree
             logger.info(
@@ -161,41 +145,28 @@ class ParallelConfig:
     sp_config: SequenceParallelConfig
     pp_config: PipeFusionParallelConfig
     tp_config: TensorParallelConfig
+    world_size: Optional[int] = None
+    placement_group: Optional[PlacementGroup] = None
 
     def __post_init__(self):
         assert self.tp_config is not None, "tp_config must be set"
         assert self.dp_config is not None, "dp_config must be set"
         assert self.sp_config is not None, "sp_config must be set"
         assert self.pp_config is not None, "pp_config must be set"
-        parallel_world_size = (
-            self.dp_config.dp_degree
-            * self.dp_config.cfg_degree
-            * self.sp_config.sp_degree
-            * self.tp_config.tp_degree
-            * self.pp_config.pp_degree
-        )
-        world_size = dist.get_world_size()
-        assert parallel_world_size == world_size, (
-            f"parallel_world_size {parallel_world_size} "
-            f"must be equal to world_size {dist.get_world_size()}"
-        )
-        assert (
-            world_size % (self.dp_config.dp_degree * self.dp_config.cfg_degree) == 0
-        ), "world_size must be divisible by dp_degree * cfg_degree"
-        assert (
-            world_size % self.pp_config.pp_degree == 0
-        ), "world_size must be divisible by pp_degree"
-        assert (
-            world_size % self.sp_config.sp_degree == 0
-        ), "world_size must be divisible by sp_degree"
-        assert (
-            world_size % self.tp_config.tp_degree == 0
-        ), "world_size must be divisible by tp_degree"
+
+
         self.dp_degree = self.dp_config.dp_degree
         self.cfg_degree = self.dp_config.cfg_degree
         self.sp_degree = self.sp_config.sp_degree
         self.pp_degree = self.pp_config.pp_degree
         self.tp_degree = self.tp_config.tp_degree
+        self.world_size = (
+            self.dp_degree
+            * self.cfg_degree
+            * self.sp_degree
+            * self.tp_degree
+            * self.pp_degree
+        )
 
         self.ulysses_degree = self.sp_config.ulysses_degree
         self.ring_degree = self.sp_config.ring_degree
