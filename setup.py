@@ -5,16 +5,16 @@ import os
 if __name__ == "__main__":
     with open("README.md", "r") as f:
         long_description = f.read()
-    fp = open("xdit-comfyui/__version__.py", "r").read()
+    fp = open("xdit_comfyui/__version__.py", "r").read()
     version = eval(fp.strip().split()[-1])
 
     setup(
-        name="xdit-comfyui",
+        name="xdit_comfyui",
         author="xDiT Team",
         author_email=[
             "fangjiarui123@gmail.com",
             "eigensystem1318@gmail.com",
-        ]
+        ],
         packages=find_packages(),
         install_requires=[
             "torch>=2.3.0",
