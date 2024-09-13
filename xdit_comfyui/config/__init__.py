@@ -1,4 +1,4 @@
-from .args import FlexibleArgumentParser, xFuserArgs
+from .args import FlexibleArgumentParser, xFuserEngineArgs
 from .config import (
     EngineConfig,
     ParallelConfig,

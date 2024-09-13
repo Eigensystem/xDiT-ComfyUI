@@ -1,10 +1,5 @@
-# Adapted from 
-
-import os
 import time
-from collections import defaultdict
-from typing import Dict, List, Optional, Tuple, Union
-
+from typing import Dict, List, Optional
 
 from xdit_comfyui.config import ParallelConfig
 from xdit_comfyui.logger import init_logger
@@ -15,14 +10,11 @@ PG_WAIT_TIMEOUT = 1800
 
 try:
     import ray
-    from ray._private.state import available_resources_per_node
-    from ray.util import placement_group_table
     from ray.util.placement_group import PlacementGroup
 
 except ImportError as e:
     ray = None  # type: ignore
     ray_import_err = e
-    RayWorkerWrapper = None  # type: ignore
 
 
 def ray_is_available() -> bool:

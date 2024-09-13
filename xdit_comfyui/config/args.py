@@ -72,8 +72,8 @@ class xFuserEngineArgs:
     data_parallel_degree: int = 1
     use_cfg_parallel: bool = False
     # sequence parallel
-    ulysses_degree: Optional[int] = None
-    ring_degree: Optional[int] = None
+    ulysses_degree: Optional[int] = 1
+    ring_degree: Optional[int] = 1
     # tensor parallel
     tensor_parallel_degree: int = 1
     split_scheme: Optional[str] = "row"
@@ -108,7 +108,7 @@ class xFuserEngineArgs:
         model_group.add_argument(
             "--download-dir",
             type=nullable_str,
-            default=xFuserArgs.download_dir,
+            default=xFuserEngineArgs.download_dir,
             help="Directory to download and load the weights, default to the default cache dir of huggingface.",
         )
         model_group.add_argument(
