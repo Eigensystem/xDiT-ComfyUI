@@ -5,11 +5,9 @@ import ray
 from ray.util.placement_group import PlacementGroupSchedulingStrategy
 
 from xdit_comfyui.logger import init_logger
-from xdit_comfyui.utils import get_distributed_init_method, get_ip, get_open_port
-from ..base_executor import BaseExecutor
 from xdit_comfyui.worker.worker_wrapper import RayWorkerWrapper
-from .utils import initialize_ray_cluster
-from xdit_comfyui.worker.worker import Worker
+from ..base_executor import BaseExecutor
+from .utils import initialize_ray_cluster, get_distributed_init_method, get_ip, get_open_port
 
 logger = init_logger(__name__)
 
