@@ -37,6 +37,8 @@ environment_variables: Dict[str, Callable[[], Any]] = {
     "CUDA_VISIBLE_DEVICES": lambda: os.environ.get("CUDA_VISIBLE_DEVICES", None),
     # this is used for configuring the default logging level
     "XDIT_LOGGING_LEVEL": lambda: os.getenv("XDIT_LOGGING_LEVEL", "INFO"),
+    "XDIT_HOST_IP": lambda: os.getenv("XDIT_HOST_IP", None),
+    "XDIT_PORT": lambda: int(os.getenv("XDIT_PORT", 0)) or None,
 }
 
 variables: Dict[str, Callable[[], Any]] = {

@@ -1,6 +1,6 @@
 import ray
 import importlib
-from typing import List, Tuple
+from typing import Any, List, Tuple
 
 class WorkerWrapper:
     def __init__(self, module_name, class_name):
@@ -17,10 +17,11 @@ class WorkerWrapper:
     def init_device(self,):
         pass
 
-    def executor_method(self, method, *args, **kwargs):
-        executor = getattr(self.worker, method)
-        return executor(*args, **kwargs)
-
+    def execute_method(self, method: str, *args, **kwargs) -> Any:
+        method = getattr(self, method, None) or getattr(self.worker, method, None)
+        if not method:
+            raise(AttributeError(f"Method {method} not found in Worker class"))
+        return method(*args, **kwargs)
 
 class RayWorkerWrapper(WorkerWrapper):
     def get_node_and_gpu_ids(self,) -> Tuple[str, List[int]]:
